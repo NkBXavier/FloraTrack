@@ -11,7 +11,7 @@ export default function HomePage() {
         <div className="text-center mb-16">
           <div className="flex items-center justify-center mb-6">
             <Leaf className="h-12 w-12 text-primary mr-3" />
-            <h1 className="text-4xl font-bold text-balance">GreenTrack</h1>
+            <h1 className="text-4xl font-bold text-balance">FloraTrack</h1>
           </div>
           <p className="text-xl text-muted-foreground text-balance max-w-2xl mx-auto">
             Prenez soin de vos plantes d'intérieur avec notre système intelligent de suivi et de rappels d'arrosage

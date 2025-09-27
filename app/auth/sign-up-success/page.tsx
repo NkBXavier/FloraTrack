@@ -11,7 +11,7 @@ export default function SignUpSuccessPage() {
           {/* Logo */}
           <div className="flex items-center justify-center mb-6">
             <Leaf className="h-8 w-8 text-primary mr-2" />
-            <h1 className="text-2xl font-bold">GreenTrack</h1>
+            <h1 className="text-2xl font-bold">FloraTrack</h1>
           </div>
 
           <Card>

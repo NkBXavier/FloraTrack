@@ -4,12 +4,11 @@ import { GeistSans } from "geist/font/sans"
 import { GeistMono } from "geist/font/mono"
 import { Analytics } from "@vercel/analytics/next"
 import { Suspense } from "react"
-import "./globals.css"
+import "../styles/globals.css"
 
 export const metadata: Metadata = {
-  title: "GreenTrack - Gestion de Plantes",
+  title: "FloraTrack - Gestion de Plantes",
   description: "Application de gestion et suivi de vos plantes d'intérieur",
-  generator: "v0.app",
 }
 
 export default function RootLayout({
