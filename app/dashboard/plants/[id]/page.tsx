@@ -20,12 +20,20 @@ export default async function PlantDetailsPage({ params }: { params: Promise<{ i
   }
 
   // Fetch watering history
-  const { data: wateringHistory } = await supabase
+  const { data: WateringHistory } = await supabase
     .from("watering_history")
     .select("*")
     .eq("plant_id", id)
     .eq("user_id", data.user.id)
     .order("watered_at", { ascending: false })
+
+  // Fetch engrais history
+  const { data: EngraisHistory } = await supabase
+    .from("engrais_history")
+    .select("*")
+    .eq("plant_id", id)
+    .eq("user_id", data.user.id)
+    .order("engrais_at", { ascending: false })
 
   return (
     <div className="min-h-screen bg-background">
@@ -33,7 +41,11 @@ export default async function PlantDetailsPage({ params }: { params: Promise<{ i
 
       <main className="container mx-auto px-4 py-8">
         <div className="max-w-4xl mx-auto">
-          <PlantDetails plant={plant} wateringHistory={wateringHistory || []} />
+          <PlantDetails 
+            plant={plant} 
+            wateringHistory={WateringHistory || []} 
+            EngraisHistory={EngraisHistory || []} 
+        />
         </div>
       </main>
     </div>

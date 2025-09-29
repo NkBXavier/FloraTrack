@@ -30,12 +30,19 @@ CREATE OR REPLACE FUNCTION public.update_next_watering()
 RETURNS TRIGGER
 LANGUAGE plpgsql
 AS $$
+DECLARE
+  plant_frequency INTEGER;
 BEGIN
+  -- Get the plant's water frequency
+  SELECT water_frequency INTO plant_frequency 
+  FROM public.plants 
+  WHERE id = NEW.plant_id;
+  
   -- Update the plant's last_watered and next_watering dates
   UPDATE public.plants 
   SET 
     last_watered = NEW.watered_at,
-    next_watering = NEW.watered_at + (water_frequency || ' days')::INTERVAL,
+    next_watering = NEW.watered_at + (plant_frequency || ' days')::INTERVAL,
     updated_at = NOW()
   WHERE id = NEW.plant_id;
   

@@ -22,8 +22,27 @@ export function DashboardHeader({ user }: DashboardHeaderProps) {
 
   const handleLogout = async () => {
     const supabase = createClient()
-    await supabase.auth.signOut()
-    router.push("/")
+    
+    try {
+      // Déconnexion
+      await supabase.auth.signOut()
+      
+      // Nettoyer le cache du navigateur
+      if (typeof window !== 'undefined') {
+        // Supprimer les données du localStorage/sessionStorage si nécessaire
+        localStorage.clear()
+        sessionStorage.clear()
+        
+        // Forcer le rechargement pour nettoyer le cache
+        window.location.href = "/"
+      } else {
+        router.push("/")
+      }
+    } catch (error) {
+      console.error("Erreur lors de la déconnexion:", error)
+      // Rediriger quand même vers la page d'accueil
+      router.push("/")
+    }
   }
 
   const getInitials = (email: string) => {

@@ -30,13 +30,24 @@ export default async function DashboardPage() {
     .order("watered_at", { ascending: false })
     .limit(5)
 
+  // Fetch recent engrais history
+  const { data: recentEngrais } = await supabase
+    .from("engrais_history")
+    .select(`
+      *,
+      plants (name, species)
+    `)
+    .eq("user_id", data.user.id)
+    .order("engrais_at", { ascending: false })
+    .limit(5)
+
   return (
     <div className="min-h-screen bg-background">
       <DashboardHeader user={data.user} />
 
       <main className="container mx-auto px-4 py-8">
         <div className="space-y-8">
-          <DashboardStats plants={plants || []} recentWaterings={recentWaterings || []} />
+          <DashboardStats plants={plants || []} recentWaterings={recentWaterings || []} recentEngrais={recentEngrais || []} />
           <PlantGrid plants={plants || []} />
         </div>
       </main>

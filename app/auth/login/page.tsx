@@ -9,8 +9,8 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Leaf } from "lucide-react"
 import Link from "next/link"
-import { useRouter } from "next/navigation"
-import { useState } from "react"
+import { useRouter, useSearchParams } from "next/navigation"
+import { useState, useEffect } from "react"
 
 export default function LoginPage() {
   const [email, setEmail] = useState("")
@@ -18,6 +18,7 @@ export default function LoginPage() {
   const [error, setError] = useState<string | null>(null)
   const [isLoading, setIsLoading] = useState(false)
   const router = useRouter()
+  const searchParams = useSearchParams()
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -31,7 +32,10 @@ export default function LoginPage() {
         password,
       })
       if (error) throw error
-      router.push("/dashboard")
+      
+      // Rediriger vers la page demandée ou le dashboard par défaut
+      const redirectTo = searchParams.get("redirectTo") || "/dashboard"
+      router.push(redirectTo)
     } catch (error: unknown) {
       setError(error instanceof Error ? error.message : "Une erreur s'est produite")
     } finally {

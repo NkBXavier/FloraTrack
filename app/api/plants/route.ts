@@ -31,11 +31,15 @@ export async function POST(request: NextRequest) {
   }
 
   const body = await request.json()
-  const { name, species, water_frequency, water_amount, image_url } = body
+  const { name, species, water_frequency, water_amount, engrais_amount, engrais_frequency, image_url } = body
 
   // Calculate next watering date
   const nextWatering = new Date()
   nextWatering.setDate(nextWatering.getDate() + water_frequency)
+
+  // Calculate next engrais date
+  const nextEngrais = new Date()
+  nextEngrais.setDate(nextEngrais.getDate() + engrais_frequency)
 
   const { data: plant, error: plantError } = await supabase
     .from("plants")
@@ -45,8 +49,11 @@ export async function POST(request: NextRequest) {
       species,
       water_frequency,
       water_amount,
+      engrais_frequency,
+      engrais_amount,
       image_url,
       next_watering: nextWatering.toISOString(),
+      next_engrais: nextEngrais.toISOString(),
     })
     .select()
     .single()

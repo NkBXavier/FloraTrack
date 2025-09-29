@@ -9,6 +9,7 @@ import "../styles/globals.css"
 export const metadata: Metadata = {
   title: "FloraTrack - Gestion de Plantes",
   description: "Application de gestion et suivi de vos plantes d'intérieur",
+  icons: "/leaf.png",
 }
 
 export default function RootLayout({
