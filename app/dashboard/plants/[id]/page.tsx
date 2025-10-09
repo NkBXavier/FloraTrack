@@ -3,8 +3,8 @@ import { createClient } from "@/lib/supabase/server"
 import { PlantDetails } from "@/components/plants/plant-details"
 import { DashboardHeader } from "@/components/dashboard/dashboard-header"
 
-export default async function PlantDetailsPage({ params }: { params: Promise<{ id: string }> }) {
-  const { id } = await params
+export default async function PlantDetailsPage({ params }: { params: { id: string } }) {
+  const { id } = params
   const supabase = await createClient()
 
   const { data, error } = await supabase.auth.getUser()
@@ -13,7 +13,12 @@ export default async function PlantDetailsPage({ params }: { params: Promise<{ i
   }
 
   // Fetch the plant
-  const { data: plant } = await supabase.from("plants").select("*").eq("id", id).eq("user_id", data.user.id).single()
+  const { data: plant } = await supabase
+    .from("plants")
+    .select("*")
+    .eq("id", id)
+    .eq("user_id", data.user.id)
+    .single()
 
   if (!plant) {
     redirect("/dashboard")
@@ -27,14 +32,6 @@ export default async function PlantDetailsPage({ params }: { params: Promise<{ i
     .eq("user_id", data.user.id)
     .order("watered_at", { ascending: false })
 
-  // Fetch engrais history
-  const { data: EngraisHistory } = await supabase
-    .from("engrais_history")
-    .select("*")
-    .eq("plant_id", id)
-    .eq("user_id", data.user.id)
-    .order("engrais_at", { ascending: false })
-
   return (
     <div className="min-h-screen bg-background">
       <DashboardHeader user={data.user} />
@@ -43,9 +40,8 @@ export default async function PlantDetailsPage({ params }: { params: Promise<{ i
         <div className="max-w-4xl mx-auto">
           <PlantDetails 
             plant={plant} 
-            wateringHistory={WateringHistory || []} 
-            EngraisHistory={EngraisHistory || []} 
-        />
+            wateringHistory={WateringHistory || []}
+          />
         </div>
       </main>
     </div>

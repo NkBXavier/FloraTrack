@@ -10,6 +10,7 @@ import { useRouter } from "next/navigation"
 import { useEffect, useState } from "react"
 import Link from "next/link"
 import type { Notification } from "@/lib/types"
+import Image from "next/image"
 
 interface DashboardHeaderProps {
   user: User
@@ -75,7 +76,14 @@ export function DashboardHeader({ user }: DashboardHeaderProps) {
           {/* Logo */}
           <div className="flex items-center space-x-4">
             <Link href="/dashboard" className="flex items-center space-x-2">
-              <Leaf className="h-8 w-8 text-primary" />
+              <Image
+                src="/leaf.png"
+                alt="Leaf"
+                width={48}   // 12 * 4px = 48px pour correspondre à h-12
+                height={48}  // idem pour w-12
+                className="mr-3"
+              />
+
               <h1 className="text-2xl font-bold">FLoraTrack</h1>
             </Link>
           </div>

@@ -11,6 +11,8 @@ import { Leaf } from "lucide-react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { useState } from "react"
+import Image from "next/image"
+
 
 export default function SignUpPage() {
   const [email, setEmail] = useState("")
@@ -58,8 +60,15 @@ export default function SignUpPage() {
       <div className="w-full max-w-sm">
         <div className="flex flex-col gap-6">
           {/* Logo */}
-          <div className="flex items-center justify-center mb-6">
-            <Leaf className="h-8 w-8 text-primary mr-2" />
+          <div className="flex items-center justify-center">
+            <Image
+              src="/leaf.png"
+              alt="Leaf"
+              width={48}   // 12 * 4px = 48px pour correspondre à h-12
+              height={48}  // idem pour w-12
+              className="mr-3"
+            />
+
             <h1 className="text-2xl font-bold">FloraTrack</h1>
           </div>
 

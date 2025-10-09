@@ -6,16 +6,14 @@ import { Badge } from "@/components/ui/badge"
 import { ArrowLeft, Droplets, Edit, Calendar, TrendingUp } from "lucide-react"
 import Link from "next/link"
 import Image from "next/image"
-import { ImageDebug } from "@/components/debug/image-debug"
-import type { Plant, WateringHistory, EngraisHistory } from "@/lib/types"
+import type { Plant, WateringHistory } from "@/lib/types"
 
 interface PlantDetailsProps {
   plant: Plant
   wateringHistory: WateringHistory[]
-  EngraisHistory: EngraisHistory[]
 }
 
-export function PlantDetails({ plant, wateringHistory, EngraisHistory }: PlantDetailsProps) {
+export function PlantDetails({ plant, wateringHistory }: PlantDetailsProps) {
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString("fr-FR", {
       day: "numeric",
@@ -38,10 +36,6 @@ export function PlantDetails({ plant, wateringHistory, EngraisHistory }: PlantDe
     if (!nextWatering) return false
     return new Date(nextWatering) <= new Date()
   }
-  const isOverdues = (nextEngrais: string | null) => {
-    if (!nextEngrais) return false
-    return new Date(nextEngrais) <= new Date()
-  }
 
   const getDaysUntilWatering = (nextWatering: string | null) => {
     if (!nextWatering) return null
@@ -49,26 +43,14 @@ export function PlantDetails({ plant, wateringHistory, EngraisHistory }: PlantDe
     return days
   }
 
-  const getDaysUntilEngrais = (nextEngrais: string | null) => {
-    if (!nextEngrais) return null
-    const days = Math.ceil((new Date(nextEngrais).getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24))
-    return days
-  }
-
-  const needsWater = isOverdue(plant.next_watering)
-  const daysUntilWatering = getDaysUntilWatering(plant.next_watering)
-
-  const needsEngrais = isOverdues(plant.next_engrais)
-  const daysUntilEngrais = getDaysUntilEngrais(plant.next_engrais)
-  
+  // ✅ Convert undefined en null pour TypeScript
+  const needsWater = isOverdue(plant.next_watering ?? null)
+  const daysUntilWatering = getDaysUntilWatering(plant.next_watering ?? null)
 
   // Calculate statistics
   const totalWaterings = wateringHistory.length
   const totalWaterUsed = wateringHistory.reduce((sum, watering) => sum + watering.amount, 0)
   const averageAmount = totalWaterings > 0 ? Math.round(totalWaterUsed / totalWaterings) : 0
-  const totalEngrais = EngraisHistory.length
-  const totalEngraisUsed = EngraisHistory.reduce((sum, engrais) => sum + engrais.amount, 0)
-  const averageEngraisAmount = totalEngrais > 0 ? Math.round(totalEngraisUsed / totalEngrais) : 0
 
   return (
     <div className="space-y-6">
@@ -162,26 +144,6 @@ export function PlantDetails({ plant, wateringHistory, EngraisHistory }: PlantDe
                     )}
                   </div>
                 </div>
-
-                <div>
-                  <h4 className="font-medium mb-2">Besoins en engrais</h4>
-                  <div className="space-y-2 text-sm">
-                    <div className="flex justify-between">
-                      <span className="text-muted-foreground">Quantité:</span>
-                      <span>{plant.engrais_amount} ml</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-muted-foreground">Fréquence:</span>
-                      <span>Tous les {plant.engrais_frequency} jours</span>
-                    </div>
-                    {plant.last_engrais && (
-                      <div className="flex justify-between">
-                        <span className="text-muted-foreground">Dernier arrosage:</span>
-                        <span>{formatDate(plant.last_engrais)}</span>
-                      </div>
-                    )}
-                  </div>
-                </div>
               </div>
             </CardContent>
           </Card>
@@ -214,35 +176,6 @@ export function PlantDetails({ plant, wateringHistory, EngraisHistory }: PlantDe
               )}
             </CardContent>
           </Card>
-
-          {/* Engrais History */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Historique de pulvérisation d'engrais</CardTitle>
-            </CardHeader>
-            <CardContent>
-              {EngraisHistory.length === 0 ? (
-                <div className="text-center py-8">
-                  <Droplets className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-                  <p className="text-muted-foreground">Aucune pulvérisation enregistré pour cette plante</p>
-                </div>
-              ) : (
-                <div className="space-y-4">
-                  {EngraisHistory.map((engrais) => (
-                    <div key={engrais.id} className="flex items-center justify-between p-4 border rounded-lg">
-                      <div className="flex items-center space-x-3">
-                        <Droplets className="h-5 w-5 text-primary" />
-                        <div>
-                          <p className="font-medium">{engrais.amount} ml</p>
-                          <p className="text-sm text-muted-foreground">{formatDateTime(engrais.engrais_at)}</p>
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </CardContent>
-          </Card>
         </div>
 
         {/* Sidebar */}
@@ -265,7 +198,7 @@ export function PlantDetails({ plant, wateringHistory, EngraisHistory }: PlantDe
                     </Badge>
                   ) : null}
                   <p className="text-sm text-muted-foreground mt-2">
-                    Prochain arrosage: {formatDate(plant.next_watering)}
+                    Prochain arrosage: {formatDate(plant.next_watering ?? "")}
                   </p>
                 </div>
               ) : (
@@ -274,37 +207,6 @@ export function PlantDetails({ plant, wateringHistory, EngraisHistory }: PlantDe
                     Non planifié
                   </Badge>
                   <p className="text-sm text-muted-foreground mt-2">Aucun arrosage programmé</p>
-                </div>
-              )}
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader>
-              <CardTitle>Statut de pulvérisation d'engrais</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              {plant.next_engrais ? (
-                <div className="text-center">
-                  {needsEngrais ? (
-                    <Badge variant="destructive" className="text-sm px-4 py-2">
-                      À pulvériser maintenant
-                    </Badge>
-                  ) : daysUntilEngrais !== null ? (
-                    <Badge variant="secondary" className="text-sm px-4 py-2">
-                      Dans {daysUntilEngrais} jour{daysUntilEngrais > 1 ? "s" : ""}
-                    </Badge>
-                  ) : null}
-                  <p className="text-sm text-muted-foreground mt-2">
-                    Prochaine pulvérisation : {formatDate(plant.next_engrais)}
-                  </p>
-                </div>
-              ) : (
-                <div className="text-center">
-                  <Badge variant="outline" className="text-sm px-4 py-2">
-                    Non planifié
-                  </Badge>
-                  <p className="text-sm text-muted-foreground mt-2">Aucune pulvérisation programmée</p>
                 </div>
               )}
             </CardContent>
@@ -333,34 +235,6 @@ export function PlantDetails({ plant, wateringHistory, EngraisHistory }: PlantDe
               </div>
 
               {totalWaterings > 0 && (
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center space-x-2">
-                    <Calendar className="h-4 w-4 text-muted-foreground" />
-                    <span className="text-sm">Moyenne</span>
-                  </div>
-                  <span className="font-medium">{averageAmount} ml</span>
-                </div>
-              )}
-            </CardContent>
-
-            <CardContent className="space-y-4">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center space-x-2">
-                  <TrendingUp className="h-4 w-4 text-muted-foreground" />
-                  <span className="text-sm">Total pulvérisation</span>
-                </div>
-                <span className="font-medium">{totalEngrais}</span>
-              </div>
-
-              <div className="flex items-center justify-between">
-                <div className="flex items-center space-x-2">
-                  <Droplets className="h-4 w-4 text-muted-foreground" />
-                  <span className="text-sm">Engrais total</span>
-                </div>
-                <span className="font-medium">{totalEngraisUsed} ml</span>
-              </div>
-
-              {totalEngrais > 0 && (
                 <div className="flex items-center justify-between">
                   <div className="flex items-center space-x-2">
                     <Calendar className="h-4 w-4 text-muted-foreground" />

@@ -19,7 +19,6 @@ export function PlantGrid({ plants }: PlantGridProps) {
   const router = useRouter()
   const [deletingId, setDeletingId] = useState<string | null>(null)
   const [wateringId, setWateringId] = useState<string | null>(null)
-  const [engraisId, setEngraisId] = useState<string | null>(null)
 
   const handleDelete = async (plantId: string, plantName: string) => {
     if (!confirm(`Êtes-vous sûr de vouloir supprimer "${plantName}" ? Cette action est irréversible.`)) {
@@ -33,9 +32,7 @@ export function PlantGrid({ plants }: PlantGridProps) {
         method: "DELETE",
       })
 
-      if (!response.ok) {
-        throw new Error("Erreur lors de la suppression")
-      }
+      if (!response.ok) throw new Error("Erreur lors de la suppression")
 
       router.refresh()
     } catch (error) {
@@ -50,28 +47,19 @@ export function PlantGrid({ plants }: PlantGridProps) {
     setWateringId(plantId)
 
     try {
-      console.log("Starting watering for plant:", plantId)
-
       const response = await fetch(`/api/plants/${plantId}/water`, {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers: { "Content-Type": "application/json" },
       })
 
       const data = await response.json()
 
-      if (!response.ok) {
-        console.error("Watering API error:", data)
-        throw new Error(data.error || "Erreur lors de l'arrosage")
-      }
-
-      console.log("Watering successful:", data)
+      if (!response.ok) throw new Error(data.error || "Erreur lors de l'arrosage")
 
       alert(
-        `Plante arrosée avec succès ! Prochain arrosage dans ${
+        `Plante arrosée avec succès ! Prochain arrosage ${
           data.plant?.next_watering
-            ? new Date(data.plant.next_watering).toLocaleDateString("fr-FR")
+            ? "le " + new Date(data.plant.next_watering).toLocaleDateString("fr-FR")
             : "non défini"
         }`
       )
@@ -79,48 +67,9 @@ export function PlantGrid({ plants }: PlantGridProps) {
       router.refresh()
     } catch (error) {
       console.error("Erreur lors de l'arrosage:", error)
-      alert(error instanceof Error ? error.message : "Erreur lors de l'enregistrement de l'arrosage")
+      alert(error instanceof Error ? error.message : "Erreur lors de l'arrosage")
     } finally {
       setWateringId(null)
-    }
-  }
-
-  const handleEngrais = async (plantId: string) => {
-    setEngraisId(plantId)
-
-    try {
-      console.log("Starting engrais for plant:", plantId)
-
-      const response = await fetch(`/api/plants/${plantId}/engrais`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-      })
-
-      const data = await response.json()
-
-      if (!response.ok) {
-        console.error("Engrais API error:", data)
-        throw new Error(data.error || "Erreur lors de la pulvérisation")
-      }
-
-      console.log("Engrais successful:", data)
-
-      alert(
-        `Plante pulvérisée avec succès ! Prochain engrais dans ${
-          data.plant?.next_engrais
-            ? new Date(data.plant.next_engrais).toLocaleDateString("fr-FR")
-            : "non défini"
-        }`
-      )
-
-      router.refresh()
-    } catch (error) {
-      console.error("Erreur lors de la pulvérisation:", error)
-      alert(error instanceof Error ? error.message : "Erreur lors de l'enregistrement de la pulvérisation")
-    } finally {
-      setEngraisId(null)
     }
   }
 
@@ -141,13 +90,9 @@ export function PlantGrid({ plants }: PlantGridProps) {
     )
   }
 
-  // ✅ Patch utilitaires pour supporter string | undefined | null
   const formatDate = (dateString?: string | null) => {
     if (!dateString) return "-"
-    return new Date(dateString).toLocaleDateString("fr-FR", {
-      day: "numeric",
-      month: "short",
-    })
+    return new Date(dateString).toLocaleDateString("fr-FR", { day: "numeric", month: "short" })
   }
 
   const isOverdue = (nextDate?: string | null) => {
@@ -175,9 +120,6 @@ export function PlantGrid({ plants }: PlantGridProps) {
           const daysUntilWatering = getDaysUntil(plant.next_watering)
           const needsWater = isOverdue(plant.next_watering)
 
-          const daysUntilEngrais = getDaysUntil(plant.next_engrais)
-          const needsEngrais = isOverdue(plant.next_engrais)
-
           return (
             <Card key={plant.id} className="overflow-hidden">
               <CardHeader className="pb-3">
@@ -187,13 +129,6 @@ export function PlantGrid({ plants }: PlantGridProps) {
                     <p className="text-sm text-muted-foreground">{plant.species}</p>
                   </div>
                   <div className="flex gap-2">
-                    <Button asChild variant="outline" size="sm">
-                      <Link href={`/dashboard/plants/${plant.id}/edit`} className="flex items-center">
-                        <Edit className="mr-2 h-4 w-4" />
-                        Modifier
-                      </Link>
-                    </Button>
-
                     <Button
                       variant="destructive"
                       size="sm"
@@ -264,45 +199,6 @@ export function PlantGrid({ plants }: PlantGridProps) {
                   )}
                 </div>
 
-                {/* --- Section Engrais --- */}
-                <div className="space-y-2">
-                  <div className="flex items-center justify-between text-sm">
-                    <span className="text-muted-foreground">Prochaine pulvérisation</span>
-                    {plant.next_engrais ? (
-                      <div className="flex items-center space-x-2">
-                        {needsEngrais ? (
-                          <Badge variant="destructive" className="text-xs">
-                            À pulvériser maintenant
-                          </Badge>
-                        ) : daysUntilEngrais !== null ? (
-                          <Badge variant="secondary" className="text-xs">
-                            Dans {daysUntilEngrais} jour{daysUntilEngrais > 1 ? "s" : ""}
-                          </Badge>
-                        ) : null}
-                      </div>
-                    ) : (
-                      <span className="text-muted-foreground">Non planifié</span>
-                    )}
-                  </div>
-
-                  <div className="flex items-center justify-between text-sm">
-                    <span className="text-muted-foreground">Fréquence</span>
-                    <span>Tous les {plant.engrais_frequency} jours</span>
-                  </div>
-
-                  <div className="flex items-center justify-between text-sm">
-                    <span className="text-muted-foreground">Quantité</span>
-                    <span>{plant.engrais_amount} ml</span>
-                  </div>
-
-                  {plant.last_engrais && (
-                    <div className="flex items-center justify-between text-sm">
-                      <span className="text-muted-foreground">Dernière pulvérisation</span>
-                      <span>{formatDate(plant.last_engrais)}</span>
-                    </div>
-                  )}
-                </div>
-
                 {/* --- Boutons --- */}
                 <div className="flex space-x-2">
                   <Button
@@ -316,19 +212,6 @@ export function PlantGrid({ plants }: PlantGridProps) {
                   >
                     <Droplets className="h-4 w-4 mr-2" />
                     {wateringId === plant.id ? "Arrosage..." : needsWater ? "Arroser maintenant" : "Arroser"}
-                  </Button>
-
-                  <Button
-                    size="sm"
-                    onClick={() => handleEngrais(plant.id)}
-                    disabled={engraisId === plant.id}
-                    className={cn(
-                      "flex-1",
-                      needsEngrais ? "bg-red-600 hover:bg-red-700 text-white" : "bg-green-600 hover:bg-green-700 text-white"
-                    )}
-                  >
-                    <Droplets className="h-4 w-4 mr-2" />
-                    {engraisId === plant.id ? "Pulvérisation..." : needsEngrais ? "Pulvériser maintenant" : "Pulvériser"}
                   </Button>
 
                   <Button asChild variant="outline" size="sm" className="flex-1 bg-transparent">

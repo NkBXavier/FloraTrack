@@ -31,8 +31,6 @@ export function PlantForm({ plant, isEditing = false }: PlantFormProps) {
     image_url: plant?.image_url || "",
     water_amount: plant?.water_amount || 250,
     water_frequency: plant?.water_frequency || 7,
-    engrais_amount: plant?.engrais_amount || 250,
-    engrais_frequency : plant?.engrais_frequency || 7
   })
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -49,8 +47,6 @@ export function PlantForm({ plant, isEditing = false }: PlantFormProps) {
         !formData.species.trim() ||
         !formData.water_amount ||
         !formData.water_frequency ||
-        !formData.engrais_amount ||
-        !formData.engrais_frequency ||
         !formData.purchase_date.trim() ||
         !formData.image_url.trim()
       ) {
@@ -192,33 +188,6 @@ export function PlantForm({ plant, isEditing = false }: PlantFormProps) {
               />
             </div>
           </div>
-
-          <div className="grid gap-4 md:grid-cols-2">
-            <div className="space-y-2">
-              <Label htmlFor="engrais_amount">Quantité d'engrais (ml) {!isEditing && "*"}</Label>
-              <Input
-                id="engrais_amount"
-                type="number"
-                min="1"
-                value={formData.engrais_amount}
-                onChange={(e) => handleChange("engrais_amount", Number.parseInt(e.target.value) || 250)}
-                required={!isEditing}
-              />
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="engrais_frequency">Fréquence de pulvérisation d'engrais (jours) {!isEditing && "*"}</Label>
-              <Input
-                id="engrais_frequency"
-                type="number"
-                min="1"
-                value={formData.engrais_frequency}
-                onChange={(e) => handleChange("engrais_frequency", Number.parseInt(e.target.value) || 7)}
-                required={!isEditing}
-              />
-            </div>
-          </div>
-
           {error && <div className="text-sm text-destructive bg-destructive/10 p-3 rounded-md">{error}</div>}
           {success && <div className="text-sm text-green-600 bg-green-50 p-3 rounded-md">{success}</div>}
 

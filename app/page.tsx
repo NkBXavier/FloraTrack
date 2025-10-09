@@ -2,6 +2,8 @@ import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Leaf, Droplets, Bell, Calendar } from "lucide-react"
+import Image from "next/image"
+
 
 export default function HomePage() {
   return (
@@ -10,7 +12,14 @@ export default function HomePage() {
         {/* Header */}
         <div className="text-center mb-16">
           <div className="flex items-center justify-center mb-6">
-            <Leaf className="h-12 w-12 text-primary mr-3" />
+            <Image
+              src="/leaf.png"
+              alt="Leaf"
+              width={48}   // 12 * 4px = 48px pour correspondre à h-12
+              height={48}  // idem pour w-12
+              className="mr-3"
+            />
+
             <h1 className="text-4xl font-bold text-balance">FloraTrack</h1>
           </div>
           <p className="text-xl text-muted-foreground text-balance max-w-2xl mx-auto">
