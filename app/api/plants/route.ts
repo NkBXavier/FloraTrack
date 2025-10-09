@@ -23,23 +23,31 @@ export async function GET() {
 }
 
 export async function POST(request: NextRequest) {
-  const supabase = await createClient()
+  try {
+    const supabase = await createClient()
 
-  const { data, error } = await supabase.auth.getUser()
-  if (error || !data?.user) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
-  }
+    const { data, error } = await supabase.auth.getUser()
+    if (error || !data?.user) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+    }
 
-  const body = await request.json()
-  const { name, species, water_frequency, water_amount, engrais_amount, engrais_frequency, image_url } = body
+    let body
+    try {
+      body = await request.json()
+    } catch (parseError) {
+      return NextResponse.json({ error: "Invalid JSON in request body" }, { status: 400 })
+    }
+
+    const { name, species, water_frequency, water_amount, image_url, purchase_date } = body
+
+    // Validation des champs requis
+    if (!name || !species || !water_frequency || !water_amount) {
+      return NextResponse.json({ error: "Missing required fields: name, species, water_frequency, water_amount" }, { status: 400 })
+    }
 
   // Calculate next watering date
   const nextWatering = new Date()
   nextWatering.setDate(nextWatering.getDate() + water_frequency)
-
-  // Calculate next engrais date
-  const nextEngrais = new Date()
-  nextEngrais.setDate(nextEngrais.getDate() + engrais_frequency)
 
   const { data: plant, error: plantError } = await supabase
     .from("plants")
@@ -49,18 +57,24 @@ export async function POST(request: NextRequest) {
       species,
       water_frequency,
       water_amount,
-      engrais_frequency,
-      engrais_amount,
       image_url,
+      purchase_date,
       next_watering: nextWatering.toISOString(),
-      next_engrais: nextEngrais.toISOString(),
     })
     .select()
     .single()
 
-  if (plantError) {
-    return NextResponse.json({ error: plantError.message }, { status: 500 })
-  }
+    if (plantError) {
+      console.error('Database error:', plantError)
+      return NextResponse.json({ error: plantError.message }, { status: 500 })
+    }
 
-  return NextResponse.json(plant)
+    return NextResponse.json(plant)
+  } catch (error) {
+    console.error('API error:', error)
+    return NextResponse.json({ 
+      error: "Internal server error", 
+      details: error instanceof Error ? error.message : "Unknown error" 
+    }, { status: 500 })
+  }
 }

@@ -7,12 +7,10 @@ export interface Plant {
   image_url?: string
   water_amount: number // in ml
   water_frequency: number // in days
-  engrais_amount : number
-  engrais_frequency : number
-  last_engrais? : string
-  next_engrais? : string
   last_watered?: string
   next_watering?: string
+  location?: string
+  notes?: string
   created_at: string
   updated_at: string
 }
@@ -34,14 +32,6 @@ export interface WateringHistory {
   created_at: string
 }
 
-export interface EngraisHistory {
-  id: string
-  plant_id: string
-  user_id: string
-  engrais_at: string
-  amount: number // in ml
-  created_at: string
-}
 
 export interface Notification {
   id: string
