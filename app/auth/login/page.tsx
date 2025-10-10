@@ -37,7 +37,11 @@ export default function LoginPage() {
       
       // Rediriger vers la page demandée ou le dashboard par défaut
       const redirectTo = searchParams.get("redirectTo") || "/dashboard"
-      router.push(redirectTo)
+      // Forcer la récupération de l'utilisateur pour s'assurer que la session est bien établie côté client
+      await supabase.auth.getUser()
+      // Utiliser replace pour éviter l'historique inutile, puis rafraîchir pour mettre à jour les données serveur
+      router.replace(redirectTo)
+      router.refresh()
     } catch (error: unknown) {
       setError(error instanceof Error ? error.message : "Une erreur s'est produite")
     } finally {
